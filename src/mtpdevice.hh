@@ -32,6 +32,11 @@ class MTPDevice {
   /// The underlying device
   LIBMTP_mtpdevice_t * device;
 
+  std::map<uint32_t, LIBMTP_folder_t*> folderList;
+
+
+  void cacheFolderList();
+
   MTPDevice(LIBMTP_mtpdevice_t * dev);
 public:
 
@@ -51,6 +56,10 @@ public:
 
   /// Returns the model name
   std::string modelName() const;
+
+
+  /// Just dumps all the files
+  void dumpFileList();
   
 };
 

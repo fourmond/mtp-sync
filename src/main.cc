@@ -31,10 +31,11 @@ int main(int argc, char **argv)
       int option_index = 0;
       static struct option long_options[] = {
           {"list-devices",  false,       0,  'L'},
+          {"list-files",  false,       0,  'l'},
           {0, 0, 0, 0 }
       };
 
-      int c = getopt_long(argc, argv, "L",
+      int c = getopt_long(argc, argv, "Ll",
                           long_options, &option_index);
       if (c == -1)
           break;
@@ -46,6 +47,13 @@ int main(int argc, char **argv)
         for(MTPDevice & d : devices) {
           std::cout << " * model: " << d.modelName() << std::endl;
         }
+        break;
+      }
+      case 'l': {
+        // take the first device
+        std::vector<MTPDevice> devices = MTPDevice::availableDevices();
+        MTPDevice d = devices[0];
+        d.dumpFileList();
       }
       }
   }

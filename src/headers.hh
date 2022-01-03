@@ -26,6 +26,8 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include <map>
+#include <functional>
 
 #include <libmtp.h>
 

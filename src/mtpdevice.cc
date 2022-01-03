@@ -65,6 +65,7 @@ std::vector<MTPDevice> MTPDevice::availableDevices()
     rv.push_back(MTPDevice(devices));
     devices = devices->next;
   }
+  free(devices);
   return rv;
 }
 
@@ -80,5 +81,64 @@ std::string MTPDevice::modelName() const
   return rv;
 }
 
+void MTPDevice::cacheFolderList()
+{
+  if(! device)
+    throw std::logic_error("Getting name of an invalid MTPDevice");
+
+  // if(folderList.size() > 0)
+  //   throw std::logic_error("Already cached ?");
+
+  std::function<void (LIBMTP_folder_t*)> add =
+    [this,&add](LIBMTP_folder_t* fld) {
+      while (fld != NULL) {
+        folderList[fld->folder_id] = fld;
+        if(fld->child) {
+          std::cout << "Adding child: " << fld->child << std::endl;
+          add(fld->child);
+        }
+        fld = fld->sibling;
+      }
+    };
+
+  LIBMTP_folder_t* fld = LIBMTP_Get_Folder_List(device);
+  add(fld);
+}
+
+
+void MTPDevice::dumpFileList()
+{
+  if(! device)
+    throw std::logic_error("Getting name of an invalid MTPDevice");
+
+  LIBMTP_file_t *filelist;
+
+  std::cout << "Files: " << std::endl;
+
+
+  cacheFolderList();
+  for(auto v : folderList) {
+    LIBMTP_folder_t* fld = v.second;
+    std::cout << " * #" << fld->folder_id
+              << ": " << fld->name << " ("
+              << fld->parent_id << ", "
+              << fld->storage_id << ")" << std::endl;
+  }
+
+
+  filelist = LIBMTP_Get_Files_And_Folders(device, 0, 0);
+  while (filelist != NULL) {
+    LIBMTP_file_t *tmp;
+    // Do something on each element in the list here...
+    tmp = filelist;
+    std::cout << " * #" << tmp->item_id
+              << ": " << tmp->filename << " ("
+              << tmp->parent_id << ")" << std::endl;
+    
+    filelist = filelist->next;
+    LIBMTP_destroy_file_t(tmp);
+  }
+
+}
 
 

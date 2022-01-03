@@ -8,7 +8,7 @@ OBJECTS := $(patsubst %.cc,%.o, $(SOURCES))
 
 CXXFLAGS = -Wall -O2 -g -I.
 
-%.o: %.cc
+%.o: %.cc headers.hh
 	g++ $(CXXFLAGS) -c -std=c++11 -o $@ $<
 
 clean:
